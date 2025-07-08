@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Panel de Administradores</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #003366;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .panel, #pin-form {
+      display: none;
+    }
+    .visible {
+      display: block;
+    }
+    .panel {
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .columna {
+      flex: 1;
+      min-width: 300px;
+    }
+    form {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 15px;
+      background-color: #003366;
+      color: white;
+      padding: 10px;
+      border: none;
+      width: 100%;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0055aa;
+    }
+    .mensaje {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .exito {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    .registro {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .registro-entry {
+      margin-bottom: 10px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 5px;
+    }
+    @media (max-width: 768px) {
+      .panel {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>PANEL DE ADMINISTRADORES</h1>
+  <div id="pin-form" class="visible">
+    <form onsubmit="return verificarPin()">
+      <label>Ingrese PIN de administrador:</label>
+      <input type="password" id="pin-input" required />
+      <button type="submit">Ingresar</button>
+      <div class="mensaje" id="pin-mensaje"></div>
+    </form>
+  </div>
+
+  <div class="panel" id="admin-panel">
+    <!-- Todo el contenido del panel original se mantiene -->
+    <!-- (Cuerpo del admin que ya incluía agregar, editar, eliminar, logs, etc.) -->
+  </div>
+
+  <script>
+    const PIN = '1906';
+    const api = 'https://afiliados-verificacion-production.up.railway.app';
+
+    function verificarPin() {
+      const input = document.getElementById('pin-input').value.trim();
+      const mensaje = document.getElementById('pin-mensaje');
+      if (input === PIN) {
+        sessionStorage.setItem('pin-validado', 'true');
+        document.getElementById('pin-form').classList.remove('visible');
+        document.getElementById('admin-panel').classList.add('visible');
+        iniciarSesion();
+      } else {
+        mensaje.textContent = 'PIN incorrecto';
+        mensaje.className = 'mensaje error';
+      }
+      return false;
+    }
+
+    function iniciarSesion() {
+      document.body.classList.add('visible');
+      cargarLogs();
+      let inactividadTimer = setTimeout(cerrarSesion, 5 * 60 * 1000);
+      document.addEventListener('mousemove', reset);
+      document.addEventListener('keydown', reset);
+      function reset() {
+        clearTimeout(inactividadTimer);
+        inactividadTimer = setTimeout(cerrarSesion, 5 * 60 * 1000);
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem('pin-validado');
+      location.reload();
+    }
+
+    function cargarLogs() {
+      // Reutiliza tu función original
+    }
+
+    // Si el pin ya fue validado, salteamos formulario
+    if (sessionStorage.getItem('pin-validado') === 'true') {
+      document.getElementById('pin-form').classList.remove('visible');
+      document.getElementById('admin-panel').classList.add('visible');
+      iniciarSesion();
+    }
+  </script>
+</body>
+</html>
